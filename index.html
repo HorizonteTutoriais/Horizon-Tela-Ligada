@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScreenKeep | Manter Tela Ligada</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d8ff;
+            --primary-dark: #00a8cc;
+            --secondary: #6c63ff;
+            --dark: #0a192f;
+            --darker: #020c1b;
+            --light: #ccd6f6;
+            --success: #00ff9d;
+            --warning: #ffbb00;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Efeito de partículas animadas */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 216, 255, 0.1);
+            box-shadow: 0 0 10px rgba(0, 216, 255, 0.3);
+        }
+
+        /* Efeito de grade animada */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(108, 99, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(108, 99, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Container principal */
+        .container {
+            position: relative;
+            z-index: 2;
+            background: rgba(10, 25, 47, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 216, 255, 0.1);
+            margin: 20px;
+        }
+
+        /* Cabeçalho */
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite alternate;
+            box-shadow: 0 0 30px rgba(0, 216, 255, 0.5);
+        }
+
+        .logo i {
+            font-size: 50px;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 30px rgba(0, 216, 255, 0.5); }
+            100% { transform: scale(1.05); box-shadow: 0 0 40px rgba(0, 216, 255, 0.8); }
+        }
+
+        .title {
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(204, 214, 246, 0.8);
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+        /* Status */
+        .status-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-label {
+            font-size: 1.1rem;
+            color: rgba(204, 214, 246, 0.7);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--warning);
+            animation: blink 1.5s infinite;
+        }
+
+        .status-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .status-active .status-dot {
+            background-color: var(--success);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Botões */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 18px 32px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 200px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c63ff, #4a44c8);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn i {
+            font-size: 1.3rem;
+        }
+
+        /* Detalhes técnicos */
+        .tech-info {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .tech-info h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .tech-info p {
+            color: rgba(204, 214, 246, 0.7);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        /* Rodapé */
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: rgba(204, 214, 246, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                width: 95%;
+            }
+            
+            .title {
+                font-size: 2.2rem;
+            }
+            
+            .btn {
+                min-width: 100%;
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+            
+            .status-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Efeito de grade animada -->
+    <div class="grid-bg"></div>
+    
+    <!-- Efeito de partículas -->
+    <div id="particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-desktop"></i>
+                </div>
+            </div>
+            
+            <h1 class="title">ScreenKeep</h1>
+            <p class="subtitle">Mantenha sua tela ativa durante apresentações, leituras ou qualquer tarefa que exija atenção contínua.</p>
+        </div>
+        
+        <div class="status-container" id="statusContainer">
+            <div class="status-label">
+                <i class="fas fa-info-circle"></i> Status do Wake Lock:
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <div class="status-text" id="statusText">Desativado</div>
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button class="btn btn-primary" id="activateBtn" onclick="ativarTela()">
+                <i class="fas fa-power-off"></i> Ativar Wake Lock
+            </button>
+            
+            <button class="btn btn-warning" id="deactivateBtn" onclick="desativarTela()" disabled>
+                <i class="fas fa-stop"></i> Desativar Wake Lock
+            </button>
+            
+            <button class="btn btn-secondary" id="linkBtn" onclick="window.open('https://www.google.com', '_blank')">
+                <i class="fas fa-external-link-alt"></i> Abrir Google
+            </button>
+        </div>
+        
+        <div class="tech-info">
+            <h3><i class="fas fa-cogs"></i> Informações Técnicas</h3>
+            <p>Esta aplicação utiliza a API Wake Lock para impedir que a tela do dispositivo se desligue automaticamente. Funciona na maioria dos navegadores modernos (Chrome, Edge, Opera) em dispositivos móveis e desktop. A tela permanecerá ativa até que você clique em "Desativar" ou feche a página.</p>
+        </div>
+        
+        <div class="footer">
+            <p>Desenvolvido com <i class="fas fa-heart" style="color:#ff4757"></i> para manter sua produtividade | 
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/WakeLock" target="_blank">Saiba mais sobre a API Wake Lock</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let wakeLock = null;
+        let particlesInterval;
+        
+        // Inicializar efeito de partículas
+        function initParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                createParticle(particlesContainer);
+            }
+            
+            // Atualizar partículas periodicamente
+            particlesInterval = setInterval(() => {
+                // Remover partículas antigas
+                const particles = document.querySelectorAll('.particle');
+                if (particles.length > particleCount) {
+                    particles[0].remove();
+                }
+                
+                // Adicionar novas partículas
+                if (particles.length < particleCount) {
+                    createParticle(particlesContainer);
+                }
+            }, 1000);
+        }
+        
+        function createParticle(container) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Tamanho aleatório
+            const size = Math.random() * 20 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Posição aleatória
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            
+            // Cor baseada na posição
+            const hue = Math.random() * 60 + 180; // Tons de azul/ciano
+            particle.style.backgroundColor = `hsla(${hue}, 100%, 60%, ${Math.random() * 0.2 + 0.05})`;
+            
+            // Animação
+            const duration = Math.random() * 20 + 10;
+            const delay = Math.random() * 5;
+            particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+            
+            // Estilo de animação
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+                    25% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(90deg); }
+                    50% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(180deg); }
+                    75% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) rotate(270deg); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            container.appendChild(particle);
+        }
+        
+        // Atualizar interface com base no status
+        function updateUI(isActive) {
+            const statusContainer = document.getElementById('statusContainer');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const activateBtn = document.getElementById('activateBtn');
+            const deactivateBtn = document.getElementById('deactivateBtn');
+            
+            if (isActive) {
+                statusContainer.classList.add('status-active');
+                statusText.textContent = 'Ativo';
+                statusText.style.color = 'var(--success)';
+                activateBtn.disabled = true;
+                deactivateBtn.disabled = false;
+                
+                // Efeito visual adicional quando ativo
+                document.querySelector('.logo').style.animationDuration = '1s';
+            } else {
+                statusContainer.classList.remove('status-active');
+                statusText.textContent = 'Desativado';
+                statusText.style.color = 'var(--warning)';
+                activateBtn.disabled = false;
+                deactivateBtn.disabled = true;
+                
+                // Restaurar animação normal
+                document.querySelector('.logo').style.animationDuration = '2s';
+            }
+        }
+        
+        // Ativar Wake Lock
+        async function ativarTela() {
+            try {
+                // Verificar se a API é suportada
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    
+                    // Atualizar UI
+                    updateUI(true);
+                    
+                    // Evento para quando o wake lock for liberado
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock foi liberado');
+                        updateUI(false);
+                    });
+                    
+                    console.log('Wake Lock ativado com sucesso!');
+                } else {
+                    throw new Error('API Wake Lock não suportada neste navegador');
+                }
+            } catch (err) {
+                console.error(`Erro ao ativar Wake Lock: ${err.message}`);
+                alert(`Não foi possível ativar o Wake Lock: ${err.message}\n\nEste recurso funciona melhor no Chrome, Edge ou Opera em dispositivos Android e desktop.`);
+                updateUI(false);
+            }
+        }
+        
+        // Desativar Wake Lock
+        function desativarTela() {
+            if (wakeLock) {
+                wakeLock.release();
+                wakeLock = null;
+                updateUI(false);
+                console.log('Wake Lock desativado manualmente');
+            }
+        }
+        
+        // Reativar ao voltar para a aba (se já estava ativo antes)
+        document.addEventListener('visibilitychange', () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                // Tentar reativar se a página ficou visível novamente
+                console.log('Página voltou a ficar visível, reativando Wake Lock...');
+                ativarTela();
+            }
+        });
+        
+        // Verificar suporte a Wake Lock na inicialização
+        window.addEventListener('load', () => {
+            // Inicializar partículas
+            initParticles();
+            
+            // Verificar suporte
+            if (!('wakeLock' in navigator)) {
+                document.getElementById('statusText').textContent = 'Não Suportado';
+                document.getElementById('statusText').style.color = '#ff4757';
+                document.getElementById('activateBtn').disabled = true;
+                document.getElementById('activateBtn').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Navegador Não Compatível';
+                
+                // Atualizar informações técnicas
+                document.querySelector('.tech-info p').innerHTML += 
+                    '<br><br><strong>Atenção:</strong> Seu navegador não suporta a API Wake Lock. ' +
+                    'Recomendamos usar Chrome, Edge ou Opera para esta funcionalidade.';
+            }
+            
+            console.log('ScreenKeep iniciado. Wake Lock suportado:', 'wakeLock' in navigator);
+        });
+        
+        // Limpar intervalo de partículas ao sair da página
+        window.addEventListener('beforeunload', () => {
+            if (particlesInterval) {
+                clearInterval(particlesInterval);
+            }
+            
+            // Liberar wake lock se ainda estiver ativo
+            if (wakeLock) {
+                wakeLock.release();
+            }
+        });
+    </script>
+</body>
+</html>
